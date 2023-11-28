@@ -1,0 +1,11 @@
+package templates
+
+import "strconv"
+
+templ Page404() {
+  <div>404 - Not found</div>
+}
+
+templ Page500(status int) {
+  <div>{strconv.Itoa(status)} - Having problems</div>
+}

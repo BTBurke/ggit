@@ -1,0 +1,52 @@
+package routes
+
+import "git.icyphox.sh/legit/config"
+
+css indexCls() {
+  padding-top: 2em;
+  display: grid;
+  grid-template-columns: 6em 1fr minmax(0, 10em);
+  grid-row-gap: 0.5em;
+  min-width: 0;
+}
+
+templ headIndex(c *config.Config) {
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="stylesheet" href="/static/style.css" type="text/css"></link>
+    <link rel="stylesheet" href="https://cdn.icyphox.sh/fonts/inter.css" type="text/css"></link>
+    <link rel="icon" type="image/png" size="32x32" href="/static/legit.png"></link>
+    <title>{c.Meta.Title}</title>
+  </head>
+}
+
+templ indexPage(c *config.Config, repos []info) {
+  <!doctype html> 
+  <html>
+  @headIndex(c)
+  <header>
+    <h1>{ c.Meta.Title }</h1>
+    <h2>{ c.Meta.Description }</h2>
+  </header>
+  <body>
+    <main>
+      <div class={indexCls()}>
+      for _, r := range repos {
+        <div class="index-name">
+          <a href={templ.URL(r.Name)}>
+          {r.Name}
+          </a>
+        </div>
+        <div class="desc">
+          { r.Desc }
+        </div>
+        <div>
+          {r.Idle}
+        </div>        
+      }
+      </div>
+    </main>
+  </body>
+  </html>
+}
