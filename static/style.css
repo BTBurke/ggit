@@ -1,11 +1,11 @@
 :root {
-  --light: #f4f4f4;
+  --light: #eceff4;
   --cyan: #509c93;
-  --light-gray: #eee;
-  --medium-gray: #ddd;
-  --gray: #6a6a6a;
-  --dark: #444;
-  --darker: #222;
+  --light-gray: #e5e9f0;
+  --medium-gray: #d8dee9;
+  --gray: #4c566a;
+  --dark: #3b4252;
+  --darker: #2e3440;
 
   --sans-font: "InterVar", -apple-system, BlinkMacSystemFont, "Roboto", "Segoe UI", sans-serif;
   --display-font: "InterDisplay", -apple-system, BlinkMacSystemFont, "Roboto", "Segoe UI", sans-serif;
@@ -39,13 +39,17 @@ body {
   margin: 40px auto;
 }
 
-main, footer {
+main,
+footer {
   font-size: 1rem;
   padding: 0;
   line-height: 160%;
 }
 
-main h1, h2, h3, strong {
+main h1,
+h2,
+h3,
+strong {
   font-family: var(--display-font);
   font-weight: 500;
 }
@@ -63,7 +67,8 @@ main h2 {
   font-size: 18px;
 }
 
-main h2, h3 {
+main h2,
+h3 {
   padding: 20px 0 15px 0;
 }
 
@@ -145,9 +150,11 @@ a:hover {
   white-space: pre-wrap;
 }
 
-.mode, .size {
+.mode,
+.size {
   font-family: var(--mono-font);
 }
+
 .size {
   text-align: right;
 }
@@ -183,7 +190,8 @@ a:hover {
   padding: 1rem 0 1rem 0;
 }
 
-.commit-hash, .commit-email {
+.commit-hash,
+.commit-email {
   font-family: var(--mono-font);
 }
 

@@ -27,44 +27,46 @@ type info struct {
 	d                time.Time
 }
 
-func (d *deps) Index(w http.ResponseWriter, r *http.Request) {
-	dirs, err := os.ReadDir(d.c.Repo.ScanPath)
+func scanPath(basedir string, dir string) []info {
+	d := filepath.Join(basedir, dir)
+	dirs, err := os.ReadDir(d)
 	if err != nil {
-		d.Write500(w)
-		log.Printf("reading scan path: %s", err)
-		return
+		return []info{}
 	}
-
 	infos := []info{}
 
-	for _, dir := range dirs {
-		if d.isIgnored(dir.Name()) {
+	for _, d1 := range dirs {
+		if !d1.IsDir() {
 			continue
 		}
-
-		path := filepath.Join(d.c.Repo.ScanPath, dir.Name())
+		path := filepath.Join(d, d1.Name())
 		gr, err := git.Open(path, "")
 		if err != nil {
-			log.Println(err)
+			// non-git directory, scan up to one directory deeper
+			if dir == "" {
+				subInfo := scanPath(basedir, d1.Name())
+				infos = append(infos, subInfo...)
+			}
 			continue
 		}
-
 		c, err := gr.LastCommit()
 		if err != nil {
-			d.Write500(w)
-			log.Println(err)
-			return
+			continue
 		}
-
 		desc := getDescription(path)
 
 		infos = append(infos, info{
-			Name: dir.Name(),
+			Name: filepath.Join(dir, d1.Name()),
 			Desc: desc,
 			Idle: humanize.Time(c.Author.When),
 			d:    c.Author.When,
 		})
 	}
+	return infos
+}
+
+func (d *deps) Index(w http.ResponseWriter, r *http.Request) {
+	infos := scanPath(d.c.Repo.ScanPath, "")
 
 	sort.Slice(infos, func(i, j int) bool {
 		return infos[j].d.Before(infos[i].d)
@@ -75,11 +77,13 @@ func (d *deps) Index(w http.ResponseWriter, r *http.Request) {
 
 func (d *deps) RepoIndex(w http.ResponseWriter, r *http.Request) {
 	name := flow.Param(r.Context(), "name")
+	ns := flow.Param(r.Context(), "ns")
+
 	if d.isIgnored(name) {
 		d.Write404(w)
 		return
 	}
-	name = filepath.Clean(name)
+	name = filepath.Clean(filepath.Join(ns, name))
 	path := filepath.Join(d.c.Repo.ScanPath, name)
 
 	gr, err := git.Open(path, "")
@@ -154,6 +158,7 @@ func (d *deps) RepoIndex(w http.ResponseWriter, r *http.Request) {
 }
 
 func (d *deps) RepoTree(w http.ResponseWriter, r *http.Request) {
+	ns := flow.Param(r.Context(), "ns")
 	name := flow.Param(r.Context(), "name")
 	if d.isIgnored(name) {
 		d.Write404(w)
@@ -162,7 +167,7 @@ func (d *deps) RepoTree(w http.ResponseWriter, r *http.Request) {
 	treePath := flow.Param(r.Context(), "...")
 	ref := flow.Param(r.Context(), "ref")
 
-	name = filepath.Clean(name)
+	name = filepath.Clean(filepath.Join(ns, name))
 	path := filepath.Join(d.c.Repo.ScanPath, name)
 	gr, err := git.Open(path, ref)
 	if err != nil {
@@ -189,6 +194,7 @@ func (d *deps) RepoTree(w http.ResponseWriter, r *http.Request) {
 }
 
 func (d *deps) FileContent(w http.ResponseWriter, r *http.Request) {
+	ns := flow.Param(r.Context(), "ns")
 	name := flow.Param(r.Context(), "name")
 	if d.isIgnored(name) {
 		d.Write404(w)
@@ -197,7 +203,7 @@ func (d *deps) FileContent(w http.ResponseWriter, r *http.Request) {
 	treePath := flow.Param(r.Context(), "...")
 	ref := flow.Param(r.Context(), "ref")
 
-	name = filepath.Clean(name)
+	name = filepath.Clean(filepath.Join(ns, name))
 	path := filepath.Join(d.c.Repo.ScanPath, name)
 	gr, err := git.Open(path, ref)
 	if err != nil {
@@ -217,6 +223,7 @@ func (d *deps) FileContent(w http.ResponseWriter, r *http.Request) {
 }
 
 func (d *deps) Log(w http.ResponseWriter, r *http.Request) {
+	ns := flow.Param(r.Context(), "ns")
 	name := flow.Param(r.Context(), "name")
 	if d.isIgnored(name) {
 		d.Write404(w)
@@ -224,6 +231,7 @@ func (d *deps) Log(w http.ResponseWriter, r *http.Request) {
 	}
 	ref := flow.Param(r.Context(), "ref")
 
+	name = filepath.Clean(filepath.Join(ns, name))
 	path := filepath.Join(d.c.Repo.ScanPath, name)
 	gr, err := git.Open(path, ref)
 	if err != nil {
@@ -256,6 +264,7 @@ func (d *deps) Log(w http.ResponseWriter, r *http.Request) {
 }
 
 func (d *deps) Diff(w http.ResponseWriter, r *http.Request) {
+	ns := flow.Param(r.Context(), "ns")
 	name := flow.Param(r.Context(), "name")
 	if d.isIgnored(name) {
 		d.Write404(w)
@@ -263,6 +272,7 @@ func (d *deps) Diff(w http.ResponseWriter, r *http.Request) {
 	}
 	ref := flow.Param(r.Context(), "ref")
 
+	name = filepath.Clean(filepath.Join(ns, name))
 	path := filepath.Join(d.c.Repo.ScanPath, name)
 	gr, err := git.Open(path, ref)
 	if err != nil {
@@ -297,12 +307,14 @@ func (d *deps) Diff(w http.ResponseWriter, r *http.Request) {
 }
 
 func (d *deps) Refs(w http.ResponseWriter, r *http.Request) {
+	ns := flow.Param(r.Context(), "ns")
 	name := flow.Param(r.Context(), "name")
 	if d.isIgnored(name) {
 		d.Write404(w)
 		return
 	}
 
+	name = filepath.Clean(filepath.Join(ns, name))
 	path := filepath.Join(d.c.Repo.ScanPath, name)
 	gr, err := git.Open(path, "")
 	if err != nil {

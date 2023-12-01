@@ -15,8 +15,9 @@ import (
 )
 
 func (d *deps) InfoRefs(w http.ResponseWriter, r *http.Request) {
+	ns := flow.Param(r.Context(), "ns")
 	name := flow.Param(r.Context(), "name")
-	name = filepath.Clean(name)
+	name = filepath.Clean(filepath.Join(ns, name))
 
 	repo := filepath.Join(d.c.Repo.ScanPath, name)
 
@@ -61,8 +62,9 @@ func (d *deps) InfoRefs(w http.ResponseWriter, r *http.Request) {
 }
 
 func (d *deps) UploadPack(w http.ResponseWriter, r *http.Request) {
+	ns := flow.Param(r.Context(), "ns")
 	name := flow.Param(r.Context(), "name")
-	name = filepath.Clean(name)
+	name = filepath.Clean(filepath.Join(ns, name))
 
 	repo := filepath.Join(d.c.Repo.ScanPath, name)
 

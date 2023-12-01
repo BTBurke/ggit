@@ -5,10 +5,11 @@ import "git.icyphox.sh/legit/config"
 css indexCls() {
   padding-top: 2em;
   display: grid;
-  grid-template-columns: 6em 1fr minmax(0, 10em);
+  grid-template-columns: 6em 1fr minmax(0, 6em);
   grid-row-gap: 0.5em;
   min-width: 0;
 }
+
 
 templ headIndex(c *config.Config) {
   <head>
@@ -21,16 +22,17 @@ templ headIndex(c *config.Config) {
   </head>
 }
 
+
 templ indexPage(c *config.Config, repos []info) {
   <!doctype html> 
   <html>
   @headIndex(c)
+  <body>
   <header>
     <h1>{ c.Meta.Title }</h1>
     <h2>{ c.Meta.Description }</h2>
   </header>
-  <body>
-    <main>
+  <main>
       <div class={indexCls()}>
       for _, r := range repos {
         <div class="index-name">

@@ -17,7 +17,7 @@ func indexCls() templ.CSSClass {
 	var templ_7745c5c3_CSSBuilder strings.Builder
 	templ_7745c5c3_CSSBuilder.WriteString(`padding-top:2em;`)
 	templ_7745c5c3_CSSBuilder.WriteString(`display:grid;`)
-	templ_7745c5c3_CSSBuilder.WriteString(`grid-template-columns:6em 1fr minmax(0, 10em);`)
+	templ_7745c5c3_CSSBuilder.WriteString(`grid-template-columns:6em 1fr minmax(0, 6em);`)
 	templ_7745c5c3_CSSBuilder.WriteString(`grid-row-gap:0.5em;`)
 	templ_7745c5c3_CSSBuilder.WriteString(`min-width:0;`)
 	templ_7745c5c3_CSSID := templ.CSSID(`indexCls`, templ_7745c5c3_CSSBuilder.String())
@@ -81,7 +81,7 @@ func indexPage(c *config.Config, repos []info) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<header><h1>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<body><header><h1>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -99,7 +99,7 @@ func indexPage(c *config.Config, repos []info) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</h2></header><body><main>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</h2></header><main>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
