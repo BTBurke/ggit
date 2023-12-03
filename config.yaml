@@ -18,3 +18,9 @@ server:
   name: git.icyphox.sh
   host: 127.0.0.1
   port: 5555
+ssh:
+  host: 127.0.0.1
+  port: 2222
+  identity:
+    - name: scooter
+      pubkey: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJBc3G95VyLjrA2cnUjRnWRV3Uf3x08hxKkPw6ufY9YD scooter@rtw.run

@@ -28,6 +28,14 @@ type Config struct {
 		Host string `yaml:"host"`
 		Port int    `yaml:"port"`
 	} `yaml:"server"`
+	SSH struct {
+		Host     string `yaml:"host"`
+		Port     int    `yaml:"port"`
+		Identity []struct {
+			Name   string `yaml:"name"`
+			PubKey string `yaml:"pubkey"`
+		} `yaml:"identity"`
+	} `yaml:"ssh"`
 }
 
 func Read(f string) (*Config, error) {
