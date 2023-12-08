@@ -50,10 +50,11 @@ func NewServer(c *config.Config) *ssh.Server {
 	s, err := wish.NewServer(
 		wish.WithAddress(fmt.Sprintf("%s:%d", c.SSH.Host, c.SSH.Port)),
 		wish.WithPublicKeyAuth(func(ctx ssh.Context, key ssh.PublicKey) bool {
+			if key == nil {
+				return false
+			}
+			// passes publickey through to auth handled in middleware
 			return true
-		}),
-		wish.WithPasswordAuth(func(ctx ssh.Context, pwd string) bool {
-			return false
 		}),
 		wish.WithMiddleware(
 			logging.Middleware(),
