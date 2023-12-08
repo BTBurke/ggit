@@ -65,8 +65,8 @@ func main() {
 
 	log.Printf("Signal received, shutting down")
 	for _, s := range servers {
-		if err := s.Shutdown(shutdownCtx); err != nil {
-			log.Fatalf("HTTP shutdown error: %v", err)
+		if err := s.Shutdown(shutdownCtx); err != nil && !errors.Is(err, http.ErrServerClosed) && !errors.Is(err, ssh.ErrServerClosed) {
+			log.Fatalf("Server shutdown error: %v", err)
 		}
 	}
 	log.Println("Shutdown complete")

@@ -11,11 +11,15 @@ import (
 	"github.com/charmbracelet/wish/logging"
 )
 
+var ErrServerClosed error = ssh.ErrServerClosed
+
 func AuthHandler(c *config.Config) wish.Middleware {
 	return func(h ssh.Handler) ssh.Handler {
 		return func(s ssh.Session) {
+			log.Printf("SSH command: %+v", s)
 			// handle login link if raw SSH session
 			if len(s.Command()) == 0 {
+				log.Printf("Authorizing login for key: %x", s.PublicKey())
 				for _, ident := range c.SSH.Identity {
 					k, _, _, _, _ := ssh.ParseAuthorizedKey([]byte(ident.PubKey))
 					if ssh.KeysEqual(s.PublicKey(), k) {
@@ -32,6 +36,7 @@ func AuthHandler(c *config.Config) wish.Middleware {
 }
 
 func authPubKey(c *config.Config, k ssh.PublicKey) (bool, string) {
+	log.Printf("Authorizing key %s", k)
 	for _, ident := range c.SSH.Identity {
 		k1, _, _, _, _ := ssh.ParseAuthorizedKey([]byte(ident.PubKey))
 		if ssh.KeysEqual(k, k1) {
@@ -44,6 +49,12 @@ func authPubKey(c *config.Config, k ssh.PublicKey) (bool, string) {
 func NewServer(c *config.Config) *ssh.Server {
 	s, err := wish.NewServer(
 		wish.WithAddress(fmt.Sprintf("%s:%d", c.SSH.Host, c.SSH.Port)),
+		wish.WithPublicKeyAuth(func(ctx ssh.Context, key ssh.PublicKey) bool {
+			return true
+		}),
+		wish.WithPasswordAuth(func(ctx ssh.Context, pwd string) bool {
+			return false
+		}),
 		wish.WithMiddleware(
 			logging.Middleware(),
 			AuthHandler(c),
@@ -51,7 +62,7 @@ func NewServer(c *config.Config) *ssh.Server {
 		),
 	)
 	if err != nil {
-		log.Fatal("SSH server error: %s", err)
+		log.Fatalf("SSH server error: %s", err)
 	}
 	return s
 }
