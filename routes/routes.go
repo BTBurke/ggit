@@ -23,8 +23,9 @@ type deps struct {
 }
 
 type info struct {
-	Name, Desc, Idle string
-	d                time.Time
+	Name, Idle string
+	Desc       template.HTML
+	d          time.Time
 }
 
 func scanPath(basedir string, dir string) []info {
@@ -135,11 +136,14 @@ func (d *deps) RepoIndex(w http.ResponseWriter, r *http.Request) {
 	tpath := filepath.Join(d.c.Dirs.Templates, "*")
 	t := template.Must(template.ParseGlob(tpath))
 
+	data := make(map[string]any)
+	data["lenCommits"] = len(commits) - 1
+
+	// contrain display to up to 3 commits
 	if len(commits) >= 3 {
 		commits = commits[:3]
 	}
 
-	data := make(map[string]any)
 	data["name"] = name
 	data["ref"] = mainBranch
 	data["readme"] = readmeContent
@@ -150,6 +154,7 @@ func (d *deps) RepoIndex(w http.ResponseWriter, r *http.Request) {
 	data["gomod"] = isGoModule(gr)
 
 	if err := t.ExecuteTemplate(w, "repo", data); err != nil {
+		d.Write500(w)
 		log.Println(err)
 		return
 	}

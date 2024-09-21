@@ -2,53 +2,63 @@ package routes
 
 import "git.icyphox.sh/legit/config"
 
-css indexCls() {
-  padding-top: 2em;
-  display: grid;
-  grid-template-columns: 6em 1fr minmax(0, 6em);
-  grid-row-gap: 0.5em;
-  min-width: 0;
-}
-
 
 templ headIndex(c *config.Config) {
-  <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <link rel="stylesheet" href="/static/style.css" type="text/css"></link>
-    <link rel="stylesheet" href="https://cdn.icyphox.sh/fonts/inter.css" type="text/css"></link>
-    <link rel="icon" type="image/png" size="32x32" href="/static/legit.png"></link>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="/static/style.css" type="text/css" />
+    <link rel="stylesheet" href="https://cdn.icyphox.sh/fonts/inter.css" type="text/css" />
+    <link rel="icon" type="image/png" size="32x32" href="/static/legit.png" />
     <title>{c.Meta.Title}</title>
-  </head>
+    <style type="text/css">
+        .repo {
+            padding-top: 2em;
+            display: grid;
+            grid-template-columns: 6em 1fr minmax(0, 8em);
+            grid-row-gap: 0.5em;
+            min-width: 0;
+        }
+
+        @media (max-width: 800px) {
+            .repo {
+                display: block;
+            }
+        }
+    </style>
+</head>
 }
 
 
 templ indexPage(c *config.Config, repos []info) {
-  <!doctype html> 
-  <html>
-  @headIndex(c)
-  <body>
-  <header>
-    <h1>{ c.Meta.Title }</h1>
-    <h2>{ c.Meta.Description }</h2>
-  </header>
-  <main>
-      <div class={indexCls()}>
-      for _, r := range repos {
-        <div class="index-name">
-          <a href={templ.URL(r.Name)}>
-          {r.Name}
-          </a>
+<!doctype html>
+<html>
+@headIndex(c)
+
+<body>
+    <header>
+        <h1>{ c.Meta.Title }</h1>
+        <h2>{ c.Meta.Description }</h2>
+    </header>
+    <main>
+        <div class="repo">
+            for _, r := range repos {
+            <div class="index-name">
+                <strong> <a href={templ.URL(r.Name)}>
+                        {r.Name}
+                    </a></strong>
+            </div>
+            <div class="desc tight">
+                @templ.Raw(r.Desc)
+            </div>
+            <div>
+                {r.Idle}
+            </div>
+            }
         </div>
-        <div class="desc">
-          { r.Desc }
-        </div>
-        <div>
-          {r.Idle}
-        </div>        
-      }
-      </div>
     </main>
-  </body>
-  </html>
+</body>
+
+</html>
 }

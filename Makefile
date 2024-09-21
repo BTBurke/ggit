@@ -7,4 +7,8 @@ _build:
 > go generate ./...
 > go run main.go
 
-.PHONY: dev dev_build
+deps:
+> go install github.com/a-h/templ/cmd/templ@latest
+> go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+
+.PHONY: dev _build

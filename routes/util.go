@@ -1,10 +1,13 @@
 package routes
 
 import (
+	"html/template"
 	"os"
 	"path/filepath"
 
 	"git.icyphox.sh/legit/git"
+	"github.com/microcosm-cc/bluemonday"
+	"github.com/russross/blackfriday/v2"
 )
 
 func isGoModule(gr *git.GitRepo) bool {
@@ -12,12 +15,17 @@ func isGoModule(gr *git.GitRepo) bool {
 	return err == nil
 }
 
-func getDescription(path string) (desc string) {
-	db, err := os.ReadFile(filepath.Join(path, "description"))
+func getDescription(path string) (desc template.HTML) {
+	content, err := os.ReadFile(filepath.Join(path, "description"))
 	if err == nil {
-		desc = string(db)
-	} else {
-		desc = ""
+		if len(content) > 0 {
+			unsafe := blackfriday.Run(
+				[]byte(content),
+				blackfriday.WithExtensions(blackfriday.CommonExtensions),
+			)
+			html := bluemonday.UGCPolicy().SanitizeBytes(unsafe)
+			desc = template.HTML(html)
+		}
 	}
 	return
 }
